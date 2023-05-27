@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.models.Person;
 import com.example.demo.repository.PersonRepository;
 import org.springframework.beans.BeanUtils;
@@ -20,11 +21,16 @@ public class PersonService {
     }
 
     public Optional<Person> getPersonById(long id) {
-        return personRepository.findById(id);
+        return Optional.ofNullable(personRepository.findById(id).orElseThrow(() -> new NotFoundException("No se encontró la persona con el ID: " + id)));
+
     }
 
     public List<Person> searchPersonsByName(String name) {
-        return personRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrderByLastNameAscFirstNameAsc(name, name);
+        List<Person> personList = personRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrderByLastNameAscFirstNameAsc(name, name);
+        if(personList.isEmpty()){
+            throw new NotFoundException("No se encontró la persona con el nombre: " + name);
+        }
+        return personList;
     }
 
     public Person createPerson(Person person) {
@@ -32,13 +38,10 @@ public class PersonService {
     }
 
     public Person updatePerson(long id, Person updatedPerson) {
-        Optional<Person> optionalPerson = personRepository.findById(id);
-        if (optionalPerson.isPresent()) {
-            Person person = optionalPerson.get();
-            BeanUtils.copyProperties(updatedPerson, person, "id");
-            return personRepository.save(person);
-        }
-        return null;
+        Optional<Person> optionalPerson = Optional.ofNullable(personRepository.findById(id).orElseThrow(() -> new NotFoundException("Persona no encontrada con id: " + id)));
+        Person person = optionalPerson.get();
+        BeanUtils.copyProperties(updatedPerson, person, "id");
+        return personRepository.save(person);
     }
 
     public void deletePerson(long id) {
