@@ -1,10 +1,18 @@
 package com.example.demo.models;
 
+import javax.persistence.*;
+
+@Entity
 public class Movie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String title;
     private String genre;
 
-
+    @ManyToOne
+    @JoinColumn(name = "person_id")
+    private Person person;
 
     public Movie() {}
     public Movie(String title, String genre) {

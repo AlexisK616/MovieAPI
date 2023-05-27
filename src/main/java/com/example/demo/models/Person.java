@@ -1,25 +1,25 @@
 package com.example.demo.models;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+@Entity
 public class Person {
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
     private long id;
     private String firstName;
     private String lastName;
     private LocalDate birthdate;
     private boolean hasInsurance;
+    @OneToMany(mappedBy = "person")
     private List<Movie> favouriteMovies;
 
-    // Constructor, getters, and setters
-
-    // Constructor sin argumentos
     public Person() {
         this.favouriteMovies = new ArrayList<>();
     }
 
-    // Constructor con argumentos
     public Person(long id, String firstName, String lastName, LocalDate birthdate, boolean hasInsurance, List<Movie> favouriteMovies) {
         this.id = id;
         this.firstName = firstName;
