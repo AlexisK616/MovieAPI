@@ -1,5 +1,7 @@
 package com.example.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,7 +16,10 @@ public class Person {
     private String lastName;
     private LocalDate birthdate;
     private boolean hasInsurance;
-    @OneToMany(mappedBy = "person")
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "person_movie",
+            joinColumns = @JoinColumn(name = "person_id"),
+            inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> favouriteMovies;
 
     public Person() {

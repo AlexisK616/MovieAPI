@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.exception.NotFoundException;
+import com.example.demo.models.Movie;
 import com.example.demo.models.Person;
+import com.example.demo.repository.MovieRepository;
 import com.example.demo.repository.PersonRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +11,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonService {
     @Autowired
     private PersonRepository personRepository;
+
+    @Autowired
+    private MovieRepository movieRepository;
 
 
     public List<Person> getAllPersons() {
@@ -34,8 +40,20 @@ public class PersonService {
     }
 
     public Person createPerson(Person person) {
-        return personRepository.save(person);
+        List<String> titles = person.getFavouriteMovies().stream().map(Movie::getTitle).collect(Collectors.toList());
+        List<Movie> existingMovies = movieRepository.findByTitleIn(titles);
+
+        if (!existingMovies.isEmpty()) {
+            person.setFavouriteMovies(existingMovies);
+        }
+
+        Person savedPerson = personRepository.save(person);
+
+        return savedPerson;
     }
+
+
+
 
     public Person updatePerson(long id, Person updatedPerson) {
         Optional<Person> optionalPerson = Optional.ofNullable(personRepository.findById(id).orElseThrow(() -> new NotFoundException("Persona no encontrada con id: " + id)));
