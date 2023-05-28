@@ -63,6 +63,15 @@ public class PersonService {
     }
 
     public void deletePerson(long id) {
-        personRepository.deleteById(id);
+        Optional<Person> optionalPerson = personRepository.findById(id);
+
+        if (optionalPerson.isPresent()) {
+            Person person = optionalPerson.get();
+            person.getFavouriteMovies().clear();
+            personRepository.save(person);
+            personRepository.deleteById(id);
+        } else {
+           throw new NotFoundException("person not found");
+        }
     }
 }
